@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: medicants
+      POSTGRES_PASSWORD: medicants_pass
+      POSTGRES_DB: medicants
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medicants"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api:
+    build:
+      context: ./backend-medicants
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      ADMIN_TOKEN: medicants-dashboard-2025
+      DATABASE_URL: postgres://medicants:medicants_pass@db:5432/medicants
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  pgdata:
