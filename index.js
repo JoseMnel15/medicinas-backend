@@ -10,13 +10,20 @@ const PORT = process.env.PORT || 3000;
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
-  console.warn("DATABASE_URL no está configurada. Configúrala en Render para usar Postgres.");
+  console.warn("DATABASE_URL no está configurada. Configúrala para usar Postgres.");
 }
+
+const ssl =
+  process.env.PGSSL === "true" ||
+  process.env.PGSSLMODE === "require" ||
+  process.env.PGSSLMODE === "verify-full"
+    ? { rejectUnauthorized: false }
+    : false;
 
 const pool = DATABASE_URL
   ? new Pool({
       connectionString: DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ssl,
     })
   : null;
 
